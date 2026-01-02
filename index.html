@@ -4,13 +4,25 @@
   <meta charset="UTF-8">
   <title>$LATE — Time Waits For No One</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  
   <!-- SEO / SOCIAL -->
   <meta name="description" content="$LATE — A momentum-driven meme coin. Buy before the crowd, not after the pump.">
   <meta property="og:title" content="$LATE — Time Waits For No One">
   <meta property="og:description" content="Momentum is building. Opportunity waits for no one.">
   <meta property="og:image" content="late1.jpg">
-
+  
+  <!-- Schema Markup -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Cryptocurrency",
+    "name": "$LATE Token",
+    "description": "Community-owned meme coin focused on momentum timing",
+    "url": "https://latememe.fun",
+    "image": "https://latememe.fun/late1.jpg"
+  }
+  </script>
+  
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -23,7 +35,7 @@
     <span class="badge">⏰ MOMENTUM COIN</span>
     <h1>$LATE</h1>
     <p>Community owned. No team. No tax. Just momentum.</p>
-
+    
     <a href="https://join.pump.fun/HSag/kflbiotk" target="_blank" class="buy pulse">
       <img src="pumpfun.png" alt="Pumpfun">
       Buy Before The Crowd
@@ -34,55 +46,124 @@
   <section class="fade delay1 card">
     <h2>Tokenomics</h2>
     <ul>
-      <li>💰 Total Supply: 1,000,000,000</li>
+      <li>💰 Total Supply: <span id="supplyCount">1,000,000,000</span></li>
       <li>🟢 No Tax</li>
       <li>❌ No Team Allocation</li>
       <li>🤝 100% Community Owned</li>
     </ul>
   </section>
 
+  <!-- LIVE MOMENTUM -->
+  <section class="fade delay2 card">
+    <h2>📈 Live Momentum</h2>
+    <div class="live-data">
+      <div class="data-item">
+        <span class="label">Market Cap:</span>
+        <span class="value" id="marketCap">Loading...</span>
+      </div>
+      <div class="data-item">
+        <span class="label">24h Volume:</span>
+        <span class="value" id="volume">Loading...</span>
+      </div>
+      <div class="data-item">
+        <span class="label">Price:</span>
+        <span class="value" id="price">Loading...</span>
+      </div>
+      <div class="data-item">
+        <span class="label">Liquidity:</span>
+        <span class="value" id="liquidity">Loading...</span>
+      </div>
+    </div>
+    <p style="font-size:0.8em; opacity:0.7; margin-top:15px;">
+      📡 Live data from <a href="https://dexscreener.com/solana/33g47ycaz7la3dnw9spf19jggrycgmvak5pwvruqrr4j" 
+      target="_blank" style="color:#00ffcc">DexScreener</a>
+      <span id="lastUpdate" style="display:block;margin-top:5px;"></span>
+    </p>
+  </section>
+
   <!-- CONTRACT -->
   <section class="fade delay2 card">
     <h2>Contract Address</h2>
-    <code>6sf6zf7UpkqPEz3byHpK5mvPUr9xBCf8FaXSuTUkpump</code>
+    <div class="contract-wrapper">
+      <code id="contractAddress">6sf6zf7UpkqPEz3byHpK5mvPUr9xBCf8FaXSuTUkpump</code>
+      <button class="copy-btn" onclick="copyContract()">Copy</button>
+    </div>
+    <p style="font-size:0.9em; margin-top:15px; opacity:0.8;">
+      <a href="https://dexscreener.com/solana/33g47ycaz7la3dnw9spf19jggrycgmvak5pwvruqrr4j" 
+         target="_blank" style="color:#00ffcc">
+         🔍 View on DexScreener
+      </a>
+    </p>
   </section>
 
   <!-- STORY -->
   <section class="story fade delay3">
     <h2>The $LATE Effect</h2>
-
+    
     <p>
       In crypto, <strong>timing is everything</strong>.
-      <strong>$LATE</strong> isn’t just a coin — it’s a signal.
+      <strong>$LATE</strong> isn't just a coin — it's a signal.
       When momentum starts building, the early move fast,
       and the late can only watch.
     </p>
-
+    
     <p class="quote">
-      “Opportunity waits for no one.”
+      "Opportunity waits for no one."
     </p>
-
+    
     <div class="story-points">
       <span>💰 Money flows</span>
       <span>⏰ Time ticks</span>
       <span>🚀 Momentum builds</span>
     </div>
-
+    
     <p>
-      The winners aren’t the smartest — they’re the fastest.
+      The winners aren't the smartest — they're the fastest.
       <strong>Buy before the crowd, not after the pump.</strong>
     </p>
-
+    
     <p class="story-end">
       🟢 <strong>$LATE</strong> — Time waits for no one.
     </p>
   </section>
 
-  <!-- MEMES -->
-  <section class="images fade delay4">
-    <img src="late2.jpg">
-    <img src="late3.jpg">
-    <img src="late4.jpg">
+  <!-- 10 FOTO BERJALAN CAROUSEL -->
+  <section class="fade delay4 meme-section">
+    <h2>🔥 Community Momentum</h2>
+    <p class="section-subtitle">The memes that fuel the movement</p>
+    
+    <div class="meme-carousel-container">
+      <div class="meme-carousel">
+        <div class="meme-track">
+          <!-- 10 FOTO BERBEDA (late2.jpg - late11.jpg) -->
+          <img src="late2.jpg" alt="$LATE Meme 1" loading="lazy" class="meme-img">
+          <img src="late3.jpg" alt="$LATE Meme 2" loading="lazy" class="meme-img">
+          <img src="late4.jpg" alt="$LATE Meme 3" loading="lazy" class="meme-img">
+          <img src="late5.jpg" alt="$LATE Meme 4" loading="lazy" class="meme-img">
+          <img src="late6.jpg" alt="$LATE Meme 5" loading="lazy" class="meme-img">
+          <img src="late7.jpg" alt="$LATE Meme 6" loading="lazy" class="meme-img">
+          <img src="late8.jpg" alt="$LATE Meme 7" loading="lazy" class="meme-img">
+          <img src="late9.jpg" alt="$LATE Meme 8" loading="lazy" class="meme-img">
+          <img src="late10.jpg" alt="$LATE Meme 9" loading="lazy" class="meme-img">
+          <img src="late11.jpg" alt="$LATE Meme 10" loading="lazy" class="meme-img">
+          
+          <!-- Duplikat untuk seamless loop -->
+          <img src="late2.jpg" alt="$LATE Meme 1" loading="lazy" class="meme-img">
+          <img src="late3.jpg" alt="$LATE Meme 2" loading="lazy" class="meme-img">
+          <img src="late4.jpg" alt="$LATE Meme 3" loading="lazy" class="meme-img">
+          <img src="late5.jpg" alt="$LATE Meme 4" loading="lazy" class="meme-img">
+          <img src="late6.jpg" alt="$LATE Meme 5" loading="lazy" class="meme-img">
+        </div>
+      </div>
+      
+      <!-- Controls -->
+      <div class="carousel-controls">
+        <button class="control-btn" onclick="pauseCarousel()">⏸️ Pause</button>
+        <button class="control-btn" onclick="playCarousel()">▶️ Play</button>
+        <button class="control-btn" onclick="speedUpCarousel()">⚡ Fast</button>
+        <button class="control-btn" onclick="slowDownCarousel()">🐢 Slow</button>
+      </div>
+    </div>
   </section>
 
   <!-- FOOTER -->
@@ -90,9 +171,12 @@
     <a href="https://x.com/i/communities/1921989276285468832" target="_blank">X Community</a>
     <span>•</span>
     <a href="https://t.me/communitylate" target="_blank">Telegram</a>
+    <span>•</span>
+    <a href="https://dexscreener.com/solana/33g47ycaz7la3dnw9spf19jggrycgmvak5pwvruqrr4j" target="_blank">Live Chart</a>
   </footer>
 
 </div>
 
+<script src="script.js"></script>
 </body>
 </html>
