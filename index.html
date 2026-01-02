@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <title>$LATE — Time Waits For No One</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   
   <!-- SEO / SOCIAL -->
   <meta name="description" content="$LATE — A momentum-driven meme coin. Buy before the crowd, not after the pump.">
   <meta property="og:title" content="$LATE — Time Waits For No One">
   <meta property="og:description" content="Momentum is building. Opportunity waits for no one.">
   <meta property="og:image" content="late1.jpg">
+  
+  <!-- Mobile App -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   
   <!-- Schema Markup -->
   <script type="application/ld+json">
@@ -30,9 +34,17 @@
 
 <div class="overlay">
 
-  <!-- HERO -->
+  <!-- HERO DENGAN LOGO -->
   <header class="fade">
     <span class="badge">⏰ MOMENTUM COIN</span>
+    
+    <!-- Logo Coin di atas $LATE -->
+    <div class="coin-logo-container">
+      <div class="coin-logo">
+        <img src="late-logo.png" alt="$LATE Logo" class="coin-logo-img">
+      </div>
+    </div>
+    
     <h1>$LATE</h1>
     <p>Community owned. No team. No tax. Just momentum.</p>
     
@@ -74,10 +86,10 @@
         <span class="value" id="liquidity">Loading...</span>
       </div>
     </div>
-    <p style="font-size:0.8em; opacity:0.7; margin-top:15px;">
+    <p class="data-source">
       📡 Live data from <a href="https://dexscreener.com/solana/33g47ycaz7la3dnw9spf19jggrycgmvak5pwvruqrr4j" 
       target="_blank" style="color:#00ffcc">DexScreener</a>
-      <span id="lastUpdate" style="display:block;margin-top:5px;"></span>
+      <span id="lastUpdate" class="update-time"></span>
     </p>
   </section>
 
@@ -86,12 +98,17 @@
     <h2>Contract Address</h2>
     <div class="contract-wrapper">
       <code id="contractAddress">6sf6zf7UpkqPEz3byHpK5mvPUr9xBCf8FaXSuTUkpump</code>
-      <button class="copy-btn" onclick="copyContract()">Copy</button>
+      <button class="copy-btn" id="copyButton">Copy</button>
     </div>
-    <p style="font-size:0.9em; margin-top:15px; opacity:0.8;">
+    <p class="contract-links">
       <a href="https://dexscreener.com/solana/33g47ycaz7la3dnw9spf19jggrycgmvak5pwvruqrr4j" 
          target="_blank" style="color:#00ffcc">
          🔍 View on DexScreener
+      </a>
+      <span class="link-separator">•</span>
+      <a href="https://solscan.io/token/6sf6zf7UpkqPEz3byHpK5mvPUr9xBCf8FaXSuTUkpump" 
+         target="_blank" style="color:#00ffcc">
+         🔗 Solscan
       </a>
     </p>
   </section>
@@ -107,9 +124,12 @@
       and the late can only watch.
     </p>
     
-    <p class="quote">
-      "Opportunity waits for no one."
-    </p>
+    <!-- QUOTE YANG RAPI DI TENGAH -->
+    <div class="quote-container">
+      <p class="quote">
+        "Opportunity waits for no one."
+      </p>
+    </div>
     
     <div class="story-points">
       <span>💰 Money flows</span>
@@ -132,6 +152,7 @@
     <h2>🔥 Community Momentum</h2>
     <p class="section-subtitle">The memes that fuel the movement</p>
     
+    <!-- Desktop Carousel -->
     <div class="meme-carousel-container">
       <div class="meme-carousel">
         <div class="meme-track">
@@ -158,20 +179,34 @@
       
       <!-- Controls -->
       <div class="carousel-controls">
-        <button class="control-btn" onclick="pauseCarousel()">⏸️ Pause</button>
-        <button class="control-btn" onclick="playCarousel()">▶️ Play</button>
-        <button class="control-btn" onclick="speedUpCarousel()">⚡ Fast</button>
-        <button class="control-btn" onclick="slowDownCarousel()">🐢 Slow</button>
+        <button class="control-btn pause-btn">⏸️ Pause</button>
+        <button class="control-btn play-btn">▶️ Play</button>
+        <button class="control-btn fast-btn">⚡ Fast</button>
+        <button class="control-btn slow-btn">🐢 Slow</button>
       </div>
+    </div>
+    
+    <!-- Mobile Grid (hidden on desktop) -->
+    <div class="mobile-meme-grid">
+      <img src="late2.jpg" alt="$LATE Meme 1" loading="lazy">
+      <img src="late3.jpg" alt="$LATE Meme 2" loading="lazy">
+      <img src="late4.jpg" alt="$LATE Meme 3" loading="lazy">
+      <img src="late5.jpg" alt="$LATE Meme 4" loading="lazy">
+      <img src="late6.jpg" alt="$LATE Meme 5" loading="lazy">
+      <img src="late7.jpg" alt="$LATE Meme 6" loading="lazy">
+      <img src="late8.jpg" alt="$LATE Meme 7" loading="lazy">
+      <img src="late9.jpg" alt="$LATE Meme 8" loading="lazy">
+      <img src="late10.jpg" alt="$LATE Meme 9" loading="lazy">
+      <img src="late11.jpg" alt="$LATE Meme 10" loading="lazy">
     </div>
   </section>
 
   <!-- FOOTER -->
   <footer class="fade delay4">
-    <a href="https://x.com/i/communities/1921989276285468832" target="_blank">X Community</a>
-    <span>•</span>
+    <a href="https://x.com/i/communities/1921989276285468832" target="_blank">𝕏 Community</a>
+    <span class="footer-separator">•</span>
     <a href="https://t.me/communitylate" target="_blank">Telegram</a>
-    <span>•</span>
+    <span class="footer-separator">•</span>
     <a href="https://dexscreener.com/solana/33g47ycaz7la3dnw9spf19jggrycgmvak5pwvruqrr4j" target="_blank">Live Chart</a>
   </footer>
 

@@ -1,61 +1,96 @@
 // ============================================
-// $LATE WEBSITE - SCRIPT
+// $LATE WEBSITE - FINAL SCRIPT
 // ============================================
 
 // Configuration
 const CONFIG = {
   DEXSCREENER_API: 'https://api.dexscreener.com/latest/dex/pairs/solana/33g47ycaz7la3dnw9spf19jggrycgmvak5pwvruqrr4j',
-  UPDATE_INTERVAL: 30000, // 30 seconds
+  UPDATE_INTERVAL: 30000,
   CONTRACT_ADDRESS: '6sf6zf7UpkqPEz3byHpK5mvPUr9xBCf8FaXSuTUkpump',
-  TOTAL_SUPPLY: 1000000000
+  TOTAL_SUPPLY: 1000000000,
+  IS_MOBILE: window.innerWidth <= 768
 };
 
-// Carousel state
-let carouselState = {
-  isPaused: false,
-  speed: 'normal' // 'slow', 'normal', 'fast'
+// State
+let appState = {
+  carouselPaused: false,
+  carouselSpeed: 'normal',
+  lastDataUpdate: null
 };
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🚀 $LATE Website Initializing...');
   
-  // Initialize components
-  initCopyButton();
-  animateSupplyCount();
-  initCarousel();
-  setupImageHandling();
+  // Mobile detection
+  detectMobile();
   
-  // Load crypto data
+  // Initialize all components
+  initComponents();
+  
+  // Load initial data
   loadCryptoData();
   
-  // Auto-refresh data
-  setInterval(loadCryptoData, CONFIG.UPDATE_INTERVAL);
+  // Setup auto-refresh (slower on mobile)
+  const refreshInterval = CONFIG.IS_MOBILE ? 60000 : CONFIG.UPDATE_INTERVAL;
+  setInterval(loadCryptoData, refreshInterval);
   
   console.log('✅ $LATE Website Ready!');
 });
 
-// ========== CONTRACT COPY ==========
+// ========== MOBILE DETECTION ==========
+function detectMobile() {
+  CONFIG.IS_MOBILE = window.innerWidth <= 768;
+  
+  // Toggle carousel/grid based on screen size
+  const carousel = document.querySelector('.meme-carousel-container');
+  const mobileGrid = document.querySelector('.mobile-meme-grid');
+  
+  if (CONFIG.IS_MOBILE) {
+    if (carousel) carousel.style.display = 'none';
+    if (mobileGrid) mobileGrid.style.display = 'grid';
+  } else {
+    if (carousel) carousel.style.display = 'block';
+    if (mobileGrid) mobileGrid.style.display = 'none';
+  }
+}
+
+// Listen for resize
+window.addEventListener('resize', detectMobile);
+
+// ========== INITIALIZE COMPONENTS ==========
+function initComponents() {
+  initCopyButton();
+  initCarouselControls();
+  animateSupplyCount();
+  setupImageHandling();
+}
+
+// ========== COPY CONTRACT FUNCTION ==========
+function initCopyButton() {
+  const copyButton = document.getElementById('copyButton');
+  if (!copyButton) return;
+  
+  copyButton.addEventListener('click', copyContract);
+}
+
 function copyContract() {
   const text = CONFIG.CONTRACT_ADDRESS;
-  const copyButton = document.querySelector('.copy-btn');
-  
-  if (!copyButton) return;
   
   // Modern clipboard API
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
-      showCopyFeedback(copyButton, true);
+      showCopyFeedback(true);
     }).catch(err => {
       console.error('Clipboard error:', err);
-      fallbackCopyText(text, copyButton);
+      fallbackCopyText(text);
     });
   } else {
-    fallbackCopyText(text, copyButton);
+    fallbackCopyText(text);
   }
 }
 
-function fallbackCopyText(text, button) {
+function fallbackCopyText(text) {
   const textArea = document.createElement('textarea');
   textArea.value = text;
   textArea.style.position = 'fixed';
@@ -66,17 +101,21 @@ function fallbackCopyText(text, button) {
   
   try {
     const successful = document.execCommand('copy');
-    showCopyFeedback(button, successful);
+    showCopyFeedback(successful);
   } catch (err) {
     console.error('Fallback copy failed:', err);
-    showCopyFeedback(button, false);
+    showCopyFeedback(false);
   }
   
   document.body.removeChild(textArea);
 }
 
-function showCopyFeedback(button, success) {
+function showCopyFeedback(success) {
+  const button = document.getElementById('copyButton');
+  if (!button) return;
+  
   const originalText = button.textContent;
+  const originalBg = button.style.background;
   
   if (success) {
     button.textContent = '✅ Copied!';
@@ -84,7 +123,7 @@ function showCopyFeedback(button, success) {
     
     setTimeout(() => {
       button.textContent = originalText;
-      button.style.background = '';
+      button.style.background = originalBg;
     }, 2000);
   } else {
     button.textContent = '❌ Failed';
@@ -92,28 +131,20 @@ function showCopyFeedback(button, success) {
     
     setTimeout(() => {
       button.textContent = originalText;
-      button.style.background = '';
+      button.style.background = originalBg;
     }, 2000);
   }
 }
 
-function initCopyButton() {
-  const copyButton = document.querySelector('.copy-btn');
-  if (copyButton) {
-    copyButton.onclick = null;
-    copyButton.addEventListener('click', copyContract);
-  }
-}
-
-// ========== SUPPLY ANIMATION ==========
+// ========== SUPPLY COUNT ANIMATION ==========
 function animateSupplyCount() {
   const supplyElement = document.getElementById('supplyCount');
   if (!supplyElement) return;
   
   const finalNumber = CONFIG.TOTAL_SUPPLY;
   let current = 0;
-  const increment = finalNumber / 100;
-  const stepTime = 20;
+  const increment = finalNumber / 50;
+  const stepTime = CONFIG.IS_MOBILE ? 30 : 20;
   
   function updateCount() {
     current += increment;
@@ -126,13 +157,13 @@ function animateSupplyCount() {
     setTimeout(updateCount, stepTime);
   }
   
+  // Start after a short delay
   setTimeout(updateCount, 500);
 }
 
 // ========== DEXSCREENER API ==========
 async function loadCryptoData() {
   try {
-    // Show loading
     updateLoadingState(true);
     
     const data = await fetchDexScreenerData();
@@ -147,13 +178,18 @@ async function loadCryptoData() {
   } catch (error) {
     console.error('Error loading crypto data:', error);
     useMockData();
+  } finally {
+    updateLoadingState(false);
   }
 }
 
 async function fetchDexScreenerData() {
   try {
     const response = await fetch(CONFIG.DEXSCREENER_API, {
-      cache: 'no-cache'
+      cache: 'no-cache',
+      headers: {
+        'Accept': 'application/json'
+      }
     });
     
     if (!response.ok) {
@@ -175,19 +211,13 @@ async function fetchDexScreenerData() {
 
 function updateUIWithRealData(pairData) {
   // Market Cap
-  if (document.getElementById('marketCap') && pairData.marketCap) {
-    const marketCap = parseFloat(pairData.marketCap) || 0;
-    document.getElementById('marketCap').textContent = formatCurrency(marketCap);
-  }
+  updateDataElement('marketCap', pairData.marketCap, true);
   
   // 24h Volume
-  if (document.getElementById('volume') && pairData.volume) {
-    const volume = parseFloat(pairData.volume.h24) || 0;
-    document.getElementById('volume').textContent = formatCurrency(volume);
-  }
+  updateDataElement('volume', pairData.volume?.h24, true);
   
-  // Price
-  if (document.getElementById('price') && pairData.priceUsd) {
+  // Price with change indicator
+  if (pairData.priceUsd) {
     const price = parseFloat(pairData.priceUsd);
     const change = pairData.priceChange ? parseFloat(pairData.priceChange.h24) : 0;
     const changeColor = change >= 0 ? '#00ff00' : '#ff4444';
@@ -199,14 +229,25 @@ function updateUIWithRealData(pairData) {
       priceHTML += ` <span style="color:${changeColor}; font-size:0.85em">${changeSymbol} ${Math.abs(change).toFixed(2)}%</span>`;
     }
     
-    document.getElementById('price').innerHTML = priceHTML;
+    const priceElement = document.getElementById('price');
+    if (priceElement) {
+      priceElement.innerHTML = priceHTML;
+      priceElement.className = change >= 0 ? 'value up' : 'value down';
+    }
   }
   
   // Liquidity
-  if (document.getElementById('liquidity') && pairData.liquidity && pairData.liquidity.usd) {
-    const liquidity = parseFloat(pairData.liquidity.usd) || 0;
-    document.getElementById('liquidity').textContent = formatCurrency(liquidity);
-  }
+  updateDataElement('liquidity', pairData.liquidity?.usd, true);
+}
+
+function updateDataElement(elementId, value, isCurrency = false) {
+  const element = document.getElementById(elementId);
+  if (!element || value === undefined || value === null) return;
+  
+  const numValue = parseFloat(value);
+  if (isNaN(numValue)) return;
+  
+  element.textContent = isCurrency ? formatCurrency(numValue) : formatNumber(numValue);
 }
 
 function useMockData() {
@@ -219,29 +260,28 @@ function useMockData() {
     liquidity: 50000 + Math.random() * 150000
   };
   
-  if (document.getElementById('marketCap')) {
-    document.getElementById('marketCap').textContent = formatCurrency(mockData.marketCap);
+  updateDataElement('marketCap', mockData.marketCap, true);
+  updateDataElement('volume', mockData.volume, true);
+  updateDataElement('liquidity', mockData.liquidity, true);
+  
+  const priceElement = document.getElementById('price');
+  if (priceElement) {
+    priceElement.textContent = `$${mockData.price.toFixed(8)}`;
   }
   
-  if (document.getElementById('volume')) {
-    document.getElementById('volume').textContent = formatCurrency(mockData.volume);
-  }
-  
-  if (document.getElementById('price')) {
-    document.getElementById('price').textContent = `$${mockData.price.toFixed(8)}`;
-  }
-  
-  if (document.getElementById('liquidity')) {
-    document.getElementById('liquidity').textContent = formatCurrency(mockData.liquidity);
-  }
-  
-  if (document.getElementById('lastUpdate')) {
-    document.getElementById('lastUpdate').textContent = '⚠️ Using demo data';
+  const updateElement = document.getElementById('lastUpdate');
+  if (updateElement) {
+    updateElement.textContent = '⚠️ Using demo data';
   }
 }
 
 function updateLoadingState(isLoading) {
   // Optional: Add loading indicators
+  if (isLoading) {
+    document.body.style.cursor = 'wait';
+  } else {
+    document.body.style.cursor = 'default';
+  }
 }
 
 function updateLastUpdateTime() {
@@ -254,30 +294,46 @@ function updateLastUpdateTime() {
     minute: '2-digit'
   });
   
+  appState.lastDataUpdate = now;
   element.textContent = `🔄 Updated: ${timeString}`;
 }
 
-// ========== MEME CAROUSEL ==========
-function initCarousel() {
+// ========== CAROUSEL CONTROLS ==========
+function initCarouselControls() {
+  // Skip carousel on mobile
+  if (CONFIG.IS_MOBILE) return;
+  
+  const pauseBtn = document.querySelector('.pause-btn');
+  const playBtn = document.querySelector('.play-btn');
+  const fastBtn = document.querySelector('.fast-btn');
+  const slowBtn = document.querySelector('.slow-btn');
   const carousel = document.querySelector('.meme-carousel-container');
   const track = document.querySelector('.meme-track');
   
-  if (!carousel || !track) return;
+  if (!track) return;
+  
+  // Event Listeners
+  if (pauseBtn) pauseBtn.addEventListener('click', pauseCarousel);
+  if (playBtn) playBtn.addEventListener('click', playCarousel);
+  if (fastBtn) fastBtn.addEventListener('click', speedUpCarousel);
+  if (slowBtn) slowBtn.addEventListener('click', slowDownCarousel);
   
   // Pause on hover
-  carousel.addEventListener('mouseenter', function() {
-    if (!carouselState.isPaused) {
-      track.classList.add('paused');
-    }
-  });
+  if (carousel) {
+    carousel.addEventListener('mouseenter', () => {
+      if (!appState.carouselPaused) {
+        track.classList.add('paused');
+      }
+    });
+    
+    carousel.addEventListener('mouseleave', () => {
+      if (!appState.carouselPaused) {
+        track.classList.remove('paused');
+      }
+    });
+  }
   
-  carousel.addEventListener('mouseleave', function() {
-    if (!carouselState.isPaused) {
-      track.classList.remove('paused');
-    }
-  });
-  
-  // Preload images
+  // Preload images for better performance
   preloadCarouselImages();
 }
 
@@ -285,8 +341,8 @@ function pauseCarousel() {
   const track = document.querySelector('.meme-track');
   if (track) {
     track.classList.add('paused');
-    carouselState.isPaused = true;
-    showCarouselNotification('Carousel paused ⏸️');
+    appState.carouselPaused = true;
+    showNotification('Carousel paused ⏸️');
   }
 }
 
@@ -294,8 +350,8 @@ function playCarousel() {
   const track = document.querySelector('.meme-track');
   if (track) {
     track.classList.remove('paused');
-    carouselState.isPaused = false;
-    showCarouselNotification('Carousel playing ▶️');
+    appState.carouselPaused = false;
+    showNotification('Carousel playing ▶️');
   }
 }
 
@@ -304,8 +360,8 @@ function speedUpCarousel() {
   if (track) {
     track.classList.remove('slow');
     track.classList.add('fast');
-    carouselState.speed = 'fast';
-    showCarouselNotification('Speed: Fast ⚡');
+    appState.carouselSpeed = 'fast';
+    showNotification('Speed: Fast ⚡');
   }
 }
 
@@ -314,8 +370,8 @@ function slowDownCarousel() {
   if (track) {
     track.classList.remove('fast');
     track.classList.add('slow');
-    carouselState.speed = 'slow';
-    showCarouselNotification('Speed: Slow 🐢');
+    appState.carouselSpeed = 'slow';
+    showNotification('Speed: Slow 🐢');
   }
 }
 
@@ -330,9 +386,49 @@ function preloadCarouselImages() {
   });
 }
 
-function showCarouselNotification(message) {
-  // Create and show notification
+// ========== IMAGE HANDLING ==========
+function setupImageHandling() {
+  const images = document.querySelectorAll('img');
+  
+  images.forEach(img => {
+    // Error handling
+    img.addEventListener('error', function() {
+      console.warn(`Failed to load image: ${this.src}`);
+      this.style.opacity = '0.5';
+      this.style.filter = 'grayscale(100%)';
+      
+      // Add alt text as fallback
+      if (this.alt) {
+        const fallback = document.createElement('div');
+        fallback.className = 'image-fallback';
+        fallback.textContent = this.alt;
+        fallback.style.cssText = `
+          background: rgba(0,255,204,0.1);
+          padding: 10px;
+          border-radius: 8px;
+          margin-top: 5px;
+          font-size: 0.9em;
+        `;
+        this.parentNode.insertBefore(fallback, this.nextSibling);
+      }
+    });
+    
+    // Add loading animation
+    img.addEventListener('load', function() {
+      this.style.animation = 'fadeIn 0.5s forwards';
+    });
+  });
+}
+
+// ========== NOTIFICATION SYSTEM ==========
+function showNotification(message) {
+  // Remove existing notification
+  const existing = document.querySelector('.notification');
+  if (existing) existing.remove();
+  
+  // Create new notification
   const notification = document.createElement('div');
+  notification.className = 'notification';
   notification.textContent = message;
   notification.style.cssText = `
     position: fixed;
@@ -341,41 +437,42 @@ function showCarouselNotification(message) {
     transform: translateX(-50%);
     background: rgba(0, 255, 204, 0.9);
     color: #000;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 10px;
     font-weight: bold;
     z-index: 1000;
     animation: fadeInOut 2s ease;
+    font-size: 0.9rem;
+    box-shadow: 0 5px 15px rgba(0, 255, 204, 0.3);
   `;
   
-  // Add animation
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes fadeInOut {
-      0%, 100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-      10%, 90% { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-  `;
-  document.head.appendChild(style);
+  // Add animation style if not exists
+  if (!document.querySelector('#notification-styles')) {
+    const style = document.createElement('style');
+    style.id = 'notification-styles';
+    style.textContent = `
+      @keyframes fadeInOut {
+        0%, 100% { 
+          opacity: 0; 
+          transform: translateX(-50%) translateY(20px); 
+        }
+        10%, 90% { 
+          opacity: 1; 
+          transform: translateX(-50%) translateY(0); 
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
   
   document.body.appendChild(notification);
   
+  // Remove after 2 seconds
   setTimeout(() => {
-    notification.remove();
+    if (notification.parentNode) {
+      notification.remove();
+    }
   }, 2000);
-}
-
-// ========== IMAGE HANDLING ==========
-function setupImageHandling() {
-  const images = document.querySelectorAll('img');
-  
-  images.forEach(img => {
-    img.addEventListener('error', function() {
-      console.warn(`Failed to load image: ${this.src}`);
-      this.style.opacity = '0.5';
-      this.style.filter = 'grayscale(100%)';
-    });
-  });
 }
 
 // ========== HELPER FUNCTIONS ==========
@@ -397,7 +494,7 @@ function formatNumber(num) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-// Export for debugging
+// ========== EXPORT FOR DEBUGGING ==========
 if (typeof window !== 'undefined') {
   window.$LATE = {
     copyContract,
@@ -405,6 +502,7 @@ if (typeof window !== 'undefined') {
     pauseCarousel,
     playCarousel,
     speedUpCarousel,
-    slowDownCarousel
+    slowDownCarousel,
+    refreshData: loadCryptoData
   };
 }
